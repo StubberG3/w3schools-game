@@ -3,11 +3,8 @@ $("document").ready(function() {
 })
 
 function startGame() {
-    redGamePiece = new component(75, 75, "red", 10, 10);
-    yellowGamePiece = new component(75, 75, "yellow", 50, 60);
-    blueGamePiece = new component(75, 75, "blue", 10, 110);
-
     myGameArea.start();
+    myGamePiece = new component(30, 30, "red", 10, 120);
 }
 
 function component(width, height, color, x, y) {
@@ -24,20 +21,9 @@ function component(width, height, color, x, y) {
 
 function updateGameArea() {
     myGameArea.clear();
-
-    redGamePiece.x += 2;
-    redGamePiece.y += 2;
-    yellowGamePiece.x += .5;
-    yellowGamePiece.y += .5;
-    blueGamePiece.x += -1;
-    blueGamePiece.y += 2;
-
-    redGamePiece.update();
-    yellowGamePiece.update();
-    blueGamePiece.update();
-}
-
-var redGamePiece, blueGamePiece, yellowGamePiece;
+    myGamePiece.x += 1;
+    myGamePiece.update();
+  }
 
 var myGameArea = {
     canvas : document.createElement("canvas"),
