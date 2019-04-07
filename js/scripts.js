@@ -1,5 +1,5 @@
 var myGamePiece;
-var myObstacle;
+var myObstacles = [];
 
 function startGame() {
     myGamePiece = new component(30, 30, "red", 10, 120);
@@ -14,6 +14,7 @@ var myGameArea = {
         this.canvas.height = 270;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.frameNo = 0;
         this.interval = setInterval(updateGameArea, 20);
     },
     clear : function() {
@@ -23,6 +24,11 @@ var myGameArea = {
         clearInterval(this.interval);
     }
 }
+
+function everyinterval(n) {
+    if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
+    return false;
+  }
 
 function component(width, height, color, x, y) {
     this.width = width;
@@ -61,16 +67,27 @@ function component(width, height, color, x, y) {
 }
 
 function updateGameArea() {
-    if (myGamePiece.crashWith(myObstacle)) {
+    var x, y;
+    for (i = 0; i < myObstacles.length; i += 1) {
+      if (myGamePiece.crashWith(myObstacles[i])) {
         myGameArea.stop();
-    } else {
-        myGameArea.clear();
-        myObstacle.x += -1;
-        myObstacle.update();
-        myGamePiece.newPos();
-        myGamePiece.update();
+        return;
+      }
     }
-}
+    myGameArea.clear();
+    myGameArea.frameNo += 1;
+    if (myGameArea.frameNo == 1 || everyinterval(150)) {
+      x = myGameArea.canvas.width;
+      y = myGameArea.canvas.height - 200
+      myObstacles.push(new component(10, 200, "green", x, y));
+    }
+    for (i = 0; i < myObstacles.length; i += 1) {
+      myObstacles[i].x += -1;
+      myObstacles[i].update();
+    }
+    myGamePiece.newPos();
+    myGamePiece.update();
+  }
 
 function moveup() {
     myGamePiece.speedY = -1;
