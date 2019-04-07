@@ -12,19 +12,16 @@
         }
     </style>
 </head>
-<body>
-    <div>
-        <!-- <button onmousedown="moveup()" onmouseup="stopMove()" ontouchstart="moveup()">UP</button>
-        <button onmousedown="movedown()" onmouseup="stopMove()" ontouchstart="movedown()">DOWN</button>
-        <button onmousedown="moveleft()" onmouseup="stopMove()" ontouchstart="moveleft()">LEFT</button>
-        <button onmousedown="moveright()" onmouseup="stopMove()" ontouchstart="moveright()">RIGHT</button> -->
-        <!-- <button onmousedown="moveup()" onmouseup="stopMove()" ontouchstart="moveup()">UP</button>
-        <button onmousedown="movedown()" onmouseup="stopMove()" ontouchstart="movedown()">DOWN</button>
-        <button onmousedown="moveleft()" onmouseup="stopMove()" ontouchstart="moveleft()">LEFT</button>
-        <button onmousedown="moveright()" onmouseup="stopMove()" ontouchstart="moveright()">RIGHT</button> -->
+<body onload=startGame()>
+    <div style="text-align:center;width:480px;">
+        <button onmousedown="moveup()" onmouseup="clearmove()" ontouchstart="moveup()">UP</button><br><br>
+        <button onmousedown="moveleft()" onmouseup="clearmove()" ontouchstart="moveleft()">LEFT</button>
+        <button onmousedown="moveright()" onmouseup="clearmove()" ontouchstart="moveright()">RIGHT</button><br><br>
+        <button onmousedown="movedown()" onmouseup="clearmove()" ontouchstart="movedown()">DOWN</button>
     </div>
 
-    <p>Move the cursor inside the canvas to move the red square.</p>
+    <p>Now there is an obstacle in our gaming area, but still nothing happens when the red square hit it.</p>
+
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
