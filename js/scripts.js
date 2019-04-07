@@ -3,7 +3,7 @@ var myBackground;
 
 function startGame() {
     myGamePiece = new component(30, 30, "/images/smiley.gif", 10, 120, "image");
-    myBackground = new component(656, 270, "../images/citymarket.jpg", 0, 0, "image");
+    myBackground = new component(656, 270, "/images/citymarket.jpg", 0, 0, "background");
     myGameArea.start();
 }
 
@@ -27,7 +27,7 @@ var myGameArea = {
 
 function component(width, height, color, x, y, type) {
     this.type = type;
-    if (type == "image") {
+    if (type == "image" || type == "background") {
         this.image = new Image();
         this.image.src = color;
     }
@@ -39,11 +39,17 @@ function component(width, height, color, x, y, type) {
     this.y = y;
     this.update = function() {
         ctx = myGameArea.context;
-        if (type == "image") {
+        if (type == "image" || type == "background") {
             ctx.drawImage(this.image,
                 this.x,
                 this.y,
                 this.width, this.height);
+        if (type == "background") {
+            ctx.drawImage(this.image,
+                this.x + this.width,
+                this.y,
+                this.width, this.height);
+        }
         } else {
             ctx.fillStyle = color;
             ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -52,11 +58,17 @@ function component(width, height, color, x, y, type) {
     this.newPos = function() {
         this.x += this.speedX;
         this.y += this.speedY;
+        if (this.type == "background") {
+            if (this.x == -(this.width)) {
+                this.x = 0;
+            }
+        }
     }
 }
 
 function updateGameArea() {
     myGameArea.clear();
+    myBackground.speedX = -1;
     myBackground.newPos();
     myBackground.update();
     myGamePiece.newPos();
