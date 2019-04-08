@@ -30,8 +30,9 @@ function component(width, height, color, x, y, type) {
     this.y = y;
     this.speedX = 0;
     this.speedY = 0;
-    this.gravity = 0.05;
+    this.gravity = 0.1;
     this.gravitySpeed = 0;
+    this.bounce = 0.6;
     this.update = function() {
         ctx = myGameArea.context;
         ctx.fillStyle = color;
@@ -41,6 +42,14 @@ function component(width, height, color, x, y, type) {
         this.gravitySpeed += this.gravity;
         this.x += this.speedX;
         this.y += this.speedY + this.gravitySpeed;
+        this.hitBottom();
+    }
+    this.hitBottom = function() {
+        var rockbottom = myGameArea.canvas.height - this.height;
+        if (this.y > rockbottom) {
+            this.y = rockbottom;
+            this.gravitySpeed = -(this.gravitySpeed * this.bounce);
+        }
     }
 }
 
