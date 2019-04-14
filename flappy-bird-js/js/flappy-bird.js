@@ -1,107 +1,159 @@
-var cvs = document.getElementById("canvas");
+var cvs = document.getElementById("canvas");  // 288w x 512h
 var ctx = cvs.getContext("2d");
 
 // load images
 
-var bird = new Image();
-var bg = new Image();
-var fg = new Image();
-var pipeNorth = new Image();
-var pipeSouth = new Image();
+var bird      = new Image();  // Bird
+var bg        = new Image();  // Background
+var fg        = new Image();  // Foreground
+var pipeNorth = new Image();  // Top Pipe
+var pipeSouth = new Image();  // Bottom Pipe
 
-bird.src = "../images/bird.png";
-bg.src = "../images/bg.png";
-fg.src = "../images/fg.png";
-pipeNorth.src = "../images/pipeNorth.png";
-pipeSouth.src = "../images/pipeSouth.png";
+bird.src      = "../images/bird.png";       // 38w x 26h
+bg.src        = "../images/bg.png";         // 288w x 512h
+fg.src        = "../images/fg.png";         // 306w x 118h
+pipeNorth.src = "../images/pipeNorth.png";  // 52w x 242h
+pipeSouth.src = "../images/pipeSouth.png";  // 52w x 378h
 
+// Setup Pipes
 
-// some variables
+var pX    = 100;
+var P_GAP = 85;
+var pK    = pipeNorth.height + P_GAP;
 
-var gap = 85;
-var constant;
+// Setup Foreground
+
+var fgY = cvs.height - fg.height;
+
+// Setup Bird
 
 var bX = 10;
 var bY = 150;
 
 var gravity = 1.5;
 
+// Setup Score
+
 var score = 0;
 
-// audio files
+// Setup Audio
 
-var fly = new Audio();
-var scor = new Audio();
+var flySound   = new Audio();
+var scoreSound = new Audio();
+var jabSound   = new Audio();
 
-fly.src = "../audio/fly.mp3";
-scor.src = "../audio/score.mp3";
+flySound.src   = "../audio/fly.mp3";
+scoreSound.src = "../audio/score.mp3";
+jabSound.src   = "../audio/jab.mp3";
 
-// on key down
+// on keydown
 
-document.addEventListener("keydown",moveUp);
+document.addEventListener("keydown", moveUp);
 
-function moveUp(){
+function moveUp() {
     bY -= 25;
-    fly.play();
+    flySound.play();
 }
 
 // pipe coordinates
 
-var pipe = [];
+var pipes = [];
 
-pipe[0] = {
-    x : cvs.width,
-    y : 0
-};
+pipes[0] = {
+    x: cvs.width,
+    y: 0
+}
 
 // draw images
-
 function draw(){
+    var gameOver = false;
 
-    ctx.drawImage(bg,0,0);
+    // Background
+    ctx.drawImage(bg, 0, 0);
 
+    // Pipes
+    for (let i = 0; i < pipes.length; i++) {
+        ctx.drawImage(pipeNorth, pipes[i].x, pipes[i].y);
+        ctx.drawImage(pipeSouth, pipes[i].x, pipes[i].y + pK);
 
-    for(var i = 0; i < pipe.length; i++){
+        pipes[i].x-=2;
 
-        constant = pipeNorth.height+gap;
-        ctx.drawImage(pipeNorth,pipe[i].x,pipe[i].y);
-        ctx.drawImage(pipeSouth,pipe[i].x,pipe[i].y+constant);
-
-        pipe[i].x--;
-
-        if( pipe[i].x == 125 ){
-            pipe.push({
-                x : cvs.width,
-                y : Math.floor(Math.random()*pipeNorth.height)-pipeNorth.height
+        if ( pipes[i].x == 124 ) {
+            pipes.push( {
+                x: cvs.width,
+                y: getRandomHeight()
             });
         }
 
-        // detect collision
-
-        if( bX + bird.width >= pipe[i].x && bX <= pipe[i].x + pipeNorth.width && (bY <= pipe[i].y + pipeNorth.height || bY+bird.height >= pipe[i].y+constant) || bY + bird.height >=  cvs.height - fg.height){
-            location.reload(); // reload the page
+        if (detectCollision(pipes[i].x, pipes[i].y)) {
+            gameOver = true;
+        } else {
+            updateScore(pipes[i].x);
         }
-
-        if(pipe[i].x == 5){
-            score++;
-            scor.play();
-        }
-
-
     }
 
-    ctx.drawImage(fg,0,cvs.height - fg.height);
+    function updateScore(pX) {
+        if (pX === 6) {
+            score++;
+            scoreSound.play();
+        }
+    }
 
-    ctx.drawImage(bird,bX,bY);
+    /**
+     * Shifts pipeNorth and pipeSouth up or down by a random amount
+     * @returns (number) - a random number
+     */
+    function getRandomHeight() {
+        return Math.floor(Math.random()*pipeNorth.height) - pipeNorth.height;
+    }
+
+    function endGame() {
+        jabSound.play();
+        setTimeout(function() {
+            location.reload();
+        }, 1000);
+    }
+
+    function detectCollision(pX, pY) {
+        var touchLeftSide      = bX + bird.width >= pX;
+        var touchRightSide     = bX <= pX + pipeNorth.width;
+        var touchNorthLid  = bY <= pY + pipeNorth.height;
+        var touchSouthLid  = bY + bird.height >= pY + pK;
+        var touchFg            = bY + bird.height >= cvs.height - fg.height;
+
+        if (
+            (
+              (touchLeftSide && touchRightSide) // Touch left or right sides of pipe
+              &&
+              (touchNorthLid || touchSouthLid) // Touch top or bottom pipe lid
+            )
+            || touchFg // Touch foreground
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Foreground
+    ctx.drawImage(fg, 0, fgY);
+
+    // Bird
+    ctx.drawImage(bird, bX, bY);
 
     bY += gravity;
 
+    // Score
     ctx.fillStyle = "#000";
     ctx.font = "20px Verdana";
-    ctx.fillText("Score : "+score,10,cvs.height-20);
+    ctx.fillText("Score : "+ score, 10, cvs.height-20);
 
-    requestAnimationFrame(draw);
-
+    if (gameOver) {
+        endGame();
+        return false;
+    } else {
+        window.requestAnimationFrame(draw);
+    }
 }
 
 draw();
